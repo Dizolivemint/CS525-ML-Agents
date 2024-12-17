@@ -18,7 +18,9 @@ public class PlayerController : MonoBehaviour
   public float tiltSpeed = 90f;
   public float tiltSmoothing = 5f;
   public float yawSpeed = 45f;  // Speed of turning
-  public float maxPitchAngle = 90f;  // For steeper up/down angles
+  public float maxPitchAngle = 90f; 
+  private float targetPitch = 0f;
+  private float targetRoll = 0f; // For steeper up/down angles
 
   // Gravity Settings
   [Header("Gravity")]
@@ -213,78 +215,100 @@ public class PlayerController : MonoBehaviour
   }
 
   void Update()
-  {
+{
     float horizontal = Input.GetAxisRaw("Horizontal");
     float vertical = Input.GetAxisRaw("Vertical");
 
     if (isDisc)
     {
-      UpdateDiscTilt(horizontal);
-      // Invert vertical for more intuitive controls (W = nose down, S = nose up)
-      UpdateDiscPitch(vertical);  // New method for handling pitch
-      moveDirection = Vector3.zero;
+        UpdateDiscRoll(horizontal);
+        // Invert vertical for more intuitive controls (W = nose down, S = nose up)
+        UpdateDiscPitch(-vertical);  // Inverted vertical for intuitive controls
+        moveDirection = Vector3.zero;
     }
     else
     {
-      moveDirection = new Vector3(horizontal, 0, 0).normalized;
+        moveDirection = new Vector3(horizontal, 0, 0).normalized;
     }
 
     // If W is held (positive vertical), increase gravity
     // Otherwise, instantly reset to minimum
     if (vertical > 0)
     {
-      float gravityDelta = gravityChangeSpeed * Time.deltaTime;
-      currentGravity = Mathf.Min(currentGravity + gravityDelta, maxGravity);
+        float gravityDelta = gravityChangeSpeed * Time.deltaTime;
+        currentGravity = Mathf.Min(currentGravity + gravityDelta, maxGravity);
     }
     else
     {
-      currentGravity = minGravity;
+        currentGravity = minGravity;
     }
 
     if (Input.GetKeyDown(KeyCode.Space))
     {
-      Transform();
+        Transform();
     }
-  }
+}
 
-  void UpdateDiscTilt(float horizontalInput)
-  {
-    if (isDisc)
-    {
-      float targetTiltAngle = -horizontalInput * maxTiltAngle;
-      targetRotation = Quaternion.Euler(0, 0, targetTiltAngle);
-    }
-  }
-
-  void UpdateDiscPitch(float verticalInput)
-  {
+void UpdateDiscPitch(float verticalInput)
+{
     if (!isDisc) return;
+    
+    // More immediate response and larger range
+    targetPitch = verticalInput * maxPitchAngle;
+    Debug.Log($"Vertical Input: {verticalInput}, Setting Target Pitch: {targetPitch}");
+}
 
-    float targetPitchAngle = verticalInput * maxPitchAngle;
+void UpdateDiscRoll(float horizontalInput)
+{
+    if (!isDisc)
+        return;
+        
+    // More immediate response
+    targetRoll = -horizontalInput * maxTiltAngle;
+    Debug.Log($"Horizontal Input: {horizontalInput}, Setting Target Roll: {targetRoll}");
+}
 
-    // Maintain current yaw and roll while updating pitch
+void UpdateDiscRotation()
+{
+    // Get current yaw since we want to preserve it
     float currentYaw = transform.rotation.eulerAngles.y;
-    float currentRoll = transform.rotation.eulerAngles.z;
-    targetRotation = Quaternion.Euler(targetPitchAngle, currentYaw, currentRoll);
-  }
+    
+    // Combine pitch and roll with current yaw
+    targetRotation = Quaternion.Euler(targetPitch, currentYaw, targetRoll);
+}
 
-  void HandleDiscPhysics()
-  {
-    Quaternion currentRotation = rb.rotation;
-    Quaternion newRotation = Quaternion.Slerp(currentRotation, targetRotation, Time.fixedDeltaTime * tiltSmoothing);
+void HandleDiscPhysics()
+{
+    Vector3 horizontalVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+    
+    if (horizontalVelocity.magnitude > 0.1f)
+    {
+        // Get base rotation to face movement direction
+        Quaternion baseRotation = Quaternion.LookRotation(horizontalVelocity.normalized);
+        
+        // Simply set the target X (pitch) and Z (roll) angles while keeping the Y (yaw) from base rotation
+        float yaw = baseRotation.eulerAngles.y;
+        targetRotation = Quaternion.Euler(targetPitch, yaw, targetRoll);
+        
+        // Apply smoothly
+        Quaternion currentRotation = rb.rotation;
+        Quaternion newRotation = Quaternion.Slerp(currentRotation, targetRotation, Time.fixedDeltaTime * tiltSmoothing);
+        rb.MoveRotation(newRotation);
 
-    rb.MoveRotation(newRotation);
+        // Handle pitch-based movement
+        float pitchAngle = rb.rotation.eulerAngles.x;
+        if (pitchAngle > 180) pitchAngle -= 360;
+        float verticalForce = -Mathf.Sin(pitchAngle * Mathf.Deg2Rad) * currentGravity;
+        rb.AddForce(Vector3.up * verticalForce, ForceMode.Acceleration);
+    }
 
-    // Only constrain Y rotation, allowing X (pitch) and Z (roll)
-    rb.constraints = RigidbodyConstraints.FreezeRotationY;
-
-    // Get roll angle for side-to-side movement
+    // Handle roll-based movement
     float rollAngle = rb.rotation.eulerAngles.z;
     if (rollAngle > 180) rollAngle -= 360;
 
     float sidewaysForce = Mathf.Sin(rollAngle * Mathf.Deg2Rad) * currentGravity;
     rb.AddForce(Vector3.right * sidewaysForce, ForceMode.Acceleration);
-  }
+}
 
   void MaintainMinimumVelocity()
   {
@@ -352,6 +376,46 @@ public class PlayerController : MonoBehaviour
 
     rb.AddForce(Vector3.down * currentGravity, ForceMode.Acceleration);
     rb.AddForce(Vector3.up * liftForce, ForceMode.Acceleration);
+
+    // Orient the disc to face the direction of movement
+    if (horizontalVelocity.magnitude > 0.1f)
+    {
+        // Get current up vector
+        Vector3 currentUp = transform.up;
+        
+        // Calculate target forward direction from velocity
+        Vector3 targetForward = horizontalVelocity.normalized;
+        
+        // Keep the up vector pointing upward (or slightly pitched based on current rotation)
+        Vector3 worldUp = Vector3.up;
+        float currentPitch = transform.rotation.eulerAngles.x;
+        if (currentPitch > 180) currentPitch -= 360; // Normalize to -180 to 180
+        
+        // Apply pitch to the up vector
+        Quaternion pitchRotation = Quaternion.Euler(currentPitch, 0, 0);
+        Vector3 targetUp = pitchRotation * worldUp;
+        
+        // Create rotation that aligns with both forward and up directions
+        Quaternion targetRotation = Quaternion.LookRotation(targetForward, targetUp);
+        
+        // Preserve the current roll
+        float currentRoll = transform.rotation.eulerAngles.z;
+        if (currentRoll > 180) currentRoll -= 360; // Normalize to -180 to 180
+        
+        // Apply roll after aligning with movement direction
+        targetRotation *= Quaternion.Euler(0, 0, currentRoll);
+        
+        transform.rotation = targetRotation;
+    }
+    else
+    {
+        // When stationary, maintain pitch and roll, but reset yaw
+        float currentPitch = transform.rotation.eulerAngles.x;
+        float currentRoll = transform.rotation.eulerAngles.z;
+        if (currentPitch > 180) currentPitch -= 360;
+        if (currentRoll > 180) currentRoll -= 360;
+        transform.rotation = Quaternion.Euler(currentPitch, 0, currentRoll);
+    }
   }
 
   void Transform()
@@ -384,32 +448,24 @@ public class PlayerController : MonoBehaviour
     targetRotation = Quaternion.identity;
   }
 
-  void SetDiscForm()
-  {
+void SetDiscForm()
+{
     meshFilter.mesh = discMesh;
     meshCollider.sharedMesh = discMesh;
     meshCollider.convex = true;
-    // Make the X scale larger to create an oval shape (2x wider than deep)
     transform.localScale = new Vector3(discRadius * 4, discHeight, discRadius * 2);
-    rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY;
+    
+    // Remove rotation constraints - we'll handle this in physics
+    rb.constraints = RigidbodyConstraints.None;
+    
     rb.drag = glidingDrag;
     rb.angularDrag = 2f;
     currentGravity = gliderGravity;
-
-    // Orient the disc to face the direction of movement
-    Vector3 horizontalVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
-    if (horizontalVelocity.magnitude > 0.1f)
-    {
-      Quaternion targetRotation = Quaternion.LookRotation(horizontalVelocity.normalized);
-      transform.rotation = targetRotation;
-    }
-    else
-    {
-      transform.rotation = Quaternion.Euler(0, 0, 0);
-    }
-
+    
     targetRotation = transform.rotation;
-  }
+    targetPitch = 0f;
+    targetRoll = 0f;
+}
 
   void OnCollisionEnter(Collision collision)
   {

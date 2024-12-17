@@ -128,8 +128,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 934138482}
-  - component: {fileID: 934138481}
   - component: {fileID: 934138483}
+  - component: {fileID: 934138484}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: Untagged
@@ -137,26 +137,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &934138481
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 934138480}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fe2e254ccc794540bde25de5790faa7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 1610611215}
-  offset: {x: 0, y: 5, z: -10}
-  smoothSpeed: 1
-  lookAheadFactor: 2
-  minHeightAboveTerrain: 2
-  terrainLayer:
-    serializedVersion: 2
-    m_Bits: 1024
 --- !u!4 &934138482
 Transform:
   m_ObjectHideFlags: 0
@@ -223,6 +203,26 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &934138484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 934138480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76e7244cd4b3e774b9f5a8072a46472a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 1610611215}
+  offset: {x: 0, y: 5, z: -5}
+  smoothSpeed: 1
+  lookAheadFactor: 2
+  minHeightAboveTerrain: 2
+  terrainLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &1004257448
 GameObject:
   m_ObjectHideFlags: 0
@@ -408,6 +408,8 @@ MonoBehaviour:
   maxTiltAngle: 45
   tiltSpeed: 90
   tiltSmoothing: 5
+  yawSpeed: 45
+  maxPitchAngle: 90
   gliderGravity: 0.5
   minGravity: 20
   maxGravity: 10000
