@@ -1,0 +1,35 @@
+behaviors:
+  BoundarySequence:
+    trainer_type: ppo
+    hyperparameters:
+      batch_size: 2048          # Larger batch size for stable learning
+      buffer_size: 20480        # 10x batch size for good experience replay
+      learning_rate: 0.0003     # Standard learning rate for PPO
+      beta: 0.005              # Entropy coefficient for exploration
+      epsilon: 0.2             # PPO clipping parameter
+      lambd: 0.95             # GAE parameter
+      num_epoch: 3             # Number of epochs per training iteration
+      learning_rate_schedule: linear
+    
+    network_settings:
+      normalize: true          # Normalize observations
+      hidden_units: 256        # Larger network for complex physics
+      num_layers: 3           # Deep network for better feature extraction
+      vis_encode_type: simple
+    
+    reward_signals:
+      extrinsic:
+        gamma: 0.99           # Discount factor for future rewards
+        strength: 1.0
+      
+      # Add curiosity for better exploration
+      curiosity:
+        gamma: 0.99
+        strength: 0.02        # Small strength to complement main reward
+        encoding_size: 256
+        learning_rate: 0.0003
+        
+    max_steps: 2000000        # Long training time for physics-based task
+    time_horizon: 1000        # Longer sequences for physics continuity
+    summary_freq: 10000       # How often to log statistics
+    threaded: true           # Enable threading for faster training

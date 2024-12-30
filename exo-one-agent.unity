@@ -363,9 +363,9 @@ MonoBehaviour:
   player: {fileID: 1610611215}
   viewDistance: 3
   chunkSize: 100
-  heightScale: 50
-  noiseScale: 50
-  baseHeight: -50
+  heightScale: 250
+  noiseScale: 100
+  baseHeight: -250
   terrainPhysicsMaterial: {fileID: 0}
 --- !u!1 &1610611210
 GameObject:
@@ -382,6 +382,9 @@ GameObject:
   - component: {fileID: 1610611211}
   - component: {fileID: 1610611217}
   - component: {fileID: 1610611216}
+  - component: {fileID: 1610611221}
+  - component: {fileID: 1610611219}
+  - component: {fileID: 1610611222}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -405,6 +408,7 @@ MonoBehaviour:
   glideSpeed: 200
   initialForce: 1000
   initialDirection: {x: 0, y: 0, z: 1}
+  currentGravity: 0
   gliderGravity: 0.5
   minGravity: 20
   maxGravity: 10000
@@ -426,7 +430,7 @@ MonoBehaviour:
   collisionBuffer: 0.05
   terrainMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1032
   showDebugGizmos: 1
 --- !u!135 &1610611212
 SphereCollider:
@@ -565,6 +569,81 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1610611219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1610611210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DecisionPeriod: 5
+  DecisionStep: 0
+  TakeActionsBetweenDecisions: 1
+--- !u!114 &1610611221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1610611210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1c4e0b1822b495aa52bc52839ecb30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_BrainParameters:
+    VectorObservationSize: 14
+    NumStackedVectorObservations: 1
+    m_ActionSpec:
+      m_NumContinuousActions: 1
+      BranchSizes: 01000000
+    VectorActionSize: 
+    VectorActionDescriptions: []
+    VectorActionSpaceType: 0
+    hasUpgradedBrainParametersWithActionSpec: 1
+  m_Model: {fileID: 0}
+  m_InferenceDevice: 0
+  m_BehaviorType: 0
+  m_BehaviorName: BoundarySequence
+  TeamId: 0
+  m_UseChildSensors: 1
+  m_UseChildActuators: 1
+  m_DeterministicInference: 0
+  m_ObservableAttributeHandling: 0
+--- !u!114 &1610611222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1610611210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 488af9183ce075d4b8e0e653f1718503, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentParameters:
+    maxStep: 0
+  hasUpgradedFromAgentParameters: 1
+  MaxStep: 0
+  playerController: {fileID: 1610611211}
+  boundaryCooldown: 0.5
+  boundaryLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  correctSequenceReward: 10
+  wrongSequencePenalty: -5
+  velocityReward: 0.01
+  completionBonus: 50
+  directionAlignmentReward: 0.1
+  efficientGravityReward: 0.05
+  optimalSpeedReward: 0.2
+  targetSpeedThreshold: 50
 --- !u!1 &1983708651
 GameObject:
   m_ObjectHideFlags: 0

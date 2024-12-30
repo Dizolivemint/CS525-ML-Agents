@@ -5,12 +5,15 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
   // Movement settings
-  // Movement settings
   [Header("Movement")]
   public float rollSpeed = 200f;
   public float glideSpeed = 200f;
   public float initialForce = 1000f;
   public Vector3 initialDirection = Vector3.forward;
+
+  [Header("ML-Agent Integration")]
+  public float currentGravity;
+  private bool isControlledByML = true;  // Flag to switch between ML and human control
 
   // Gravity Settings
   [Header("Gravity")]
@@ -18,9 +21,7 @@ public class PlayerController : MonoBehaviour
   public float minGravity = 20f;
   public float maxGravity = 10000f;   // Increased from 20
   public float gravityChangeSpeed = 1000f;  // Increased for faster changes
-  private float currentGravity;
 
-  // Rolling Settings
   // Rolling Settings
   [Header("Rolling Physics")]
   public float rollingDrag = 0.5f;      // Drastically reduced drag
@@ -96,20 +97,29 @@ public class PlayerController : MonoBehaviour
     StartCoroutine(ApplyInitialMomentum());
   }
 
-  void Update()
+  public void SetMLControl(bool enabled)
   {
-    float vertical = Input.GetAxisRaw("Vertical");
-
-    // If W is held (positive vertical), increase gravity
-    // Otherwise, instantly reset to minimum
-    if (vertical > 0)
-    {
-      float gravityDelta = gravityChangeSpeed * Time.deltaTime;
-      currentGravity = Mathf.Min(currentGravity + gravityDelta, maxGravity);
-    }
-    else
+    isControlledByML = enabled;
+    if (!enabled)
     {
       currentGravity = minGravity;
+    }
+  }
+
+  void Update()
+  {
+    if (!isControlledByML)
+    {
+      float vertical = Input.GetAxisRaw("Vertical");
+      if (vertical > 0)
+      {
+        float gravityDelta = gravityChangeSpeed * Time.deltaTime;
+        currentGravity = Mathf.Min(currentGravity + gravityDelta, maxGravity);
+      }
+      else
+      {
+        currentGravity = minGravity;
+      }
     }
   }
 
@@ -122,6 +132,9 @@ public class PlayerController : MonoBehaviour
     {
       lastValidPosition = transform.position;
     }
+
+    // Apply gravity force
+    rb.AddForce(Vector3.down * currentGravity, ForceMode.Force);
 
     HandleRolling();
 
@@ -230,7 +243,7 @@ public class PlayerController : MonoBehaviour
   }
 
 
-  void UpdateGravity(float input)
+  public void UpdateGravity(float input)
   {
     // W increases gravity, S decreases it
     float gravityDelta = input * gravityChangeSpeed * Time.deltaTime;

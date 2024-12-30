@@ -41,20 +41,54 @@ public class BoundarySetup : MonoBehaviour
 
   void CreateBoundaries()
   {
-    CreateVisibleWall(new Vector3(0, bottomOffset, 0), new Vector3(width, 1, depth)); // Bottom
-    CreateVisibleWall(new Vector3(0, height, 0), new Vector3(width, 1, depth)); // Top
-    CreateVisibleWall(new Vector3(-width / 2, height / 2 + bottomOffset / 2, 0), new Vector3(1, height + Mathf.Abs(bottomOffset), depth)); // Left
-    CreateVisibleWall(new Vector3(width / 2, height / 2 + bottomOffset / 2, 0), new Vector3(1, height + Mathf.Abs(bottomOffset), depth)); // Right
-    CreateVisibleWall(new Vector3(0, height / 2 + bottomOffset / 2, -depth / 2), new Vector3(width, height + Mathf.Abs(bottomOffset), 1)); // Back
-    CreateVisibleWall(new Vector3(0, height / 2 + bottomOffset / 2, depth / 2), new Vector3(width, height + Mathf.Abs(bottomOffset), 1)); // Front
+    // Bottom and Top
+    CreateVisibleWall(new Vector3(0, bottomOffset, 0), new Vector3(width, 1, depth), "Bottom");
+    CreateVisibleWall(new Vector3(0, height, 0), new Vector3(width, 1, depth), "Top");
+
+    // Training sequence walls
+    CreateVisibleWall(
+        new Vector3(-width / 2, height / 2 + bottomOffset / 2, 0),
+        new Vector3(1, height + Mathf.Abs(bottomOffset), depth),
+        "Left"
+    );
+
+    CreateVisibleWall(
+        new Vector3(width / 2, height / 2 + bottomOffset / 2, 0),
+        new Vector3(1, height + Mathf.Abs(bottomOffset), depth),
+        "Right"
+    );
+
+    CreateVisibleWall(
+        new Vector3(0, height / 2 + bottomOffset / 2, -depth / 2),
+        new Vector3(width, height + Mathf.Abs(bottomOffset), 1),
+        "Back"
+    );
+
+    CreateVisibleWall(
+        new Vector3(0, height / 2 + bottomOffset / 2, depth / 2),
+        new Vector3(width, height + Mathf.Abs(bottomOffset), 1),
+        "Front"
+    );
   }
 
-  void CreateVisibleWall(Vector3 position, Vector3 size)
+  void CreateVisibleWall(Vector3 position, Vector3 size, string wallType)
   {
     GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
     wall.transform.parent = transform;
     wall.transform.position = position;
     wall.transform.localScale = size;
+
+    // Set name and tag for ML-Agent detection
+    wall.name = wallType + "Wall";
+    wall.tag = "Boundary";
+
+    // Create a custom layer for boundaries if it doesn't exist
+    if (LayerMask.NameToLayer("Boundary") == -1)
+    {
+      // Note: You'll need to manually create a layer named "Boundary" in Unity
+      Debug.LogWarning("Please create a layer named 'Boundary' in Unity's Layer settings");
+    }
+    wall.layer = LayerMask.NameToLayer("Boundary");
 
     // Add physics material to the collider
     Collider wallCollider = wall.GetComponent<Collider>();
@@ -65,13 +99,32 @@ public class BoundarySetup : MonoBehaviour
     rb.isKinematic = true;
     rb.useGravity = false;
 
-    // Set up the visual material
+    // Set up the visual material with different colors for each wall type
     Renderer renderer = wall.GetComponent<Renderer>();
     Material mat = new Material(Shader.Find("Standard"));
-    mat.color = wallColor;
+
+    // Assign different colors to help identify walls
+    switch (wallType)
+    {
+      case "Front":
+        mat.color = new Color(1, 0, 0, 0.3f); // Red
+        break;
+      case "Left":
+        mat.color = new Color(0, 1, 0, 0.3f); // Green
+        break;
+      case "Right":
+        mat.color = new Color(0, 0, 1, 0.3f); // Blue
+        break;
+      case "Back":
+        mat.color = new Color(1, 1, 0, 0.3f); // Yellow
+        break;
+      default:
+        mat.color = wallColor;
+        break;
+    }
+
     renderer.material = mat;
   }
-
   void CreateEdges()
   {
     DrawEdge(new Vector3(-width / 2, bottomOffset, -depth / 2), new Vector3(width / 2, bottomOffset, -depth / 2));
