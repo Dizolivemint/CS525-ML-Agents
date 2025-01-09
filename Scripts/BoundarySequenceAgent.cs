@@ -14,7 +14,6 @@ public class BoundarySequenceAgent : Agent
   private readonly Boundary[] sequence = { Boundary.Front, Boundary.Left, Boundary.Right, Boundary.Back };
   private int currentIndex;
   private float lastBoundaryHitTime;
-  public bool isTraining = false; // Set to true for training, false for inference
 
   private enum Boundary { None, Front, Left, Right, Back }
 
@@ -39,7 +38,7 @@ public class BoundarySequenceAgent : Agent
     // Add demonstration recorder
     var recorder = gameObject.AddComponent<DemonstrationRecorder>();
     recorder.DemonstrationName = "agent_demo";
-    recorder.Record = isTraining;
+    recorder.Record = false;
   }
 
   public override void CollectObservations(VectorSensor sensor)
