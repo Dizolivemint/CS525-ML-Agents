@@ -404,6 +404,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f09857aa93d2ee4baa3adcc3a187676, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerCamera: {fileID: 934138483}
   moveForce: 100
   maxSpeed: 2000
   groundDrag: 1
