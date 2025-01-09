@@ -2,58 +2,22 @@
     "BoundarySequence": {
         "checkpoints": [
             {
-                "steps": 30133,
-                "file_path": "results\\training1\\BoundarySequence\\BoundarySequence-30133.onnx",
-                "reward": 5.0,
-                "creation_time": 1735520703.227159,
-                "auxillary_file_paths": [
-                    "results\\training1\\BoundarySequence\\BoundarySequence-30133.pt"
-                ]
-            },
-            {
-                "steps": 32113,
-                "file_path": "results\\training1\\BoundarySequence\\BoundarySequence-32113.onnx",
-                "reward": 0.0,
-                "creation_time": 1735521492.9828894,
-                "auxillary_file_paths": [
-                    "results\\training1\\BoundarySequence\\BoundarySequence-32113.pt"
-                ]
-            },
-            {
-                "steps": 32113,
-                "file_path": "results\\training1\\BoundarySequence\\BoundarySequence-32113.onnx",
+                "steps": 1000,
+                "file_path": "results\\training1\\BoundarySequence\\BoundarySequence-1000.onnx",
                 "reward": null,
-                "creation_time": 1735521641.9578104,
+                "creation_time": 1736451612.8260329,
                 "auxillary_file_paths": [
-                    "results\\training1\\BoundarySequence\\BoundarySequence-32113.pt"
-                ]
-            },
-            {
-                "steps": 499231,
-                "file_path": "results\\training1\\BoundarySequence\\BoundarySequence-499231.onnx",
-                "reward": null,
-                "creation_time": 1735526086.0619817,
-                "auxillary_file_paths": [
-                    "results\\training1\\BoundarySequence\\BoundarySequence-499231.pt"
-                ]
-            },
-            {
-                "steps": 658231,
-                "file_path": "results\\training1\\BoundarySequence\\BoundarySequence-658231.onnx",
-                "reward": null,
-                "creation_time": 1735527634.1839755,
-                "auxillary_file_paths": [
-                    "results\\training1\\BoundarySequence\\BoundarySequence-658231.pt"
+                    "results\\training1\\BoundarySequence\\BoundarySequence-1000.pt"
                 ]
             }
         ],
         "final_checkpoint": {
-            "steps": 658231,
+            "steps": 1000,
             "file_path": "results\\training1\\BoundarySequence.onnx",
             "reward": null,
-            "creation_time": 1735527634.1839755,
+            "creation_time": 1736451612.8260329,
             "auxillary_file_paths": [
-                "results\\training1\\BoundarySequence\\BoundarySequence-658231.pt"
+                "results\\training1\\BoundarySequence\\BoundarySequence-1000.pt"
             ]
         }
     },
