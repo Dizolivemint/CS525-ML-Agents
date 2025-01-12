@@ -9,8 +9,8 @@ public class BoundaryVisualizer : MonoBehaviour
     
     void Start()
     {
-        agent = FindObjectOfType<BoundarySequenceAgent>();
-        boundaries = FindObjectOfType<BoundarySetup>();
+        agent = Object.FindFirstObjectByType<BoundarySequenceAgent>();
+        boundaries = Object.FindFirstObjectByType<BoundarySetup>();
     }
 
     void Update()
