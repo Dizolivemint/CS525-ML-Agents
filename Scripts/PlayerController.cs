@@ -9,8 +9,10 @@ public class PlayerController : MonoBehaviour
   [SerializeField] private float maxSpeed = 2000f;
   [SerializeField] private float groundDrag = 1f;
   public float initialForce = 5f;
+  [SerializeField] private float sphereRadius = 0.5f; 
 
   private Rigidbody rb;
+  private SphereCollider sphereCollider;
   private bool isGrounded;
   private bool isControlledByAgent;
 
@@ -22,12 +24,33 @@ public class PlayerController : MonoBehaviour
       rb = gameObject.AddComponent<Rigidbody>();
       rb.maxAngularVelocity = maxSpeed;
       rb.constraints = RigidbodyConstraints.FreezeRotation;
+      rb.interpolation = RigidbodyInterpolation.Interpolate;
+      rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
     }
     rb.maxAngularVelocity = maxSpeed;
+
+    sphereCollider = GetComponent<SphereCollider>();
+    if (sphereCollider == null)
+    {
+      sphereCollider = gameObject.AddComponent<SphereCollider>();
+      sphereCollider.radius = sphereRadius;
+      sphereCollider.material = CreateDefaultPhysicsMaterial();
+    }
 
     // Check if there's an enabled ML-Agent component
     var agent = GetComponent<BoundarySequenceAgent>();
     isControlledByAgent = agent != null && agent.enabled;
+  }
+
+  private PhysicMaterial CreateDefaultPhysicsMaterial()
+  {
+    PhysicMaterial material = new PhysicMaterial("PlayerPhysicsMaterial");
+    material.dynamicFriction = 0.6f;
+    material.staticFriction = 0.6f;
+    material.bounciness = 0.2f;
+    material.frictionCombine = PhysicMaterialCombine.Average;
+    material.bounceCombine = PhysicMaterialCombine.Average;
+    return material;
   }
 
   // Public method to toggle control
@@ -75,7 +98,10 @@ public class PlayerController : MonoBehaviour
 
   private void CheckGrounded()
   {
-    isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f);
+    float radius = sphereCollider.radius;
+    Vector3 origin = transform.position + Vector3.up * radius;
+    float maxDistance = 1.1f + radius;
+    isGrounded = Physics.SphereCast(origin, radius * 0.9f, Vector3.down, out _, maxDistance);
   }
 
   private void ApplyDrag()
