@@ -217,6 +217,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 1610611215}
   offset: {x: 0, y: 5, z: -5}
+  trainingOffset: {x: 0, y: 50, z: -5}
+  isTrainingView: 0
   smoothSpeed: 1
   lookAheadFactor: 2
   minHeightAboveTerrain: 2
@@ -381,10 +383,12 @@ GameObject:
   - component: {fileID: 1610611212}
   - component: {fileID: 1610611211}
   - component: {fileID: 1610611217}
-  - component: {fileID: 1610611216}
   - component: {fileID: 1610611221}
   - component: {fileID: 1610611219}
   - component: {fileID: 1610611222}
+  - component: {fileID: 1610611223}
+  - component: {fileID: 1610611224}
+  - component: {fileID: 1610611225}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -405,10 +409,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 934138483}
-  moveForce: 100
+  moveForce: 200
   maxSpeed: 2000
   groundDrag: 1
   initialForce: 100
+  sphereRadius: 0.5
 --- !u!135 &1610611212
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -497,28 +502,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &1610611216
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1610611210}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!54 &1610611217
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -574,7 +557,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 14
+    VectorObservationSize: 17
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 2
@@ -609,9 +592,55 @@ MonoBehaviour:
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
   playerController: {fileID: 1610611211}
-  correctReward: 10
-  incorrectPenalty: -5
-  isTraining: 0
+  correctReward: 5
+  incorrectPenalty: -2
+  distanceRewardScale: 0.2
+  inputSmoothTime: 0.2
+  agentCamera: {fileID: 934138483}
+--- !u!114 &1610611223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1610611210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2902496c0120472b90269f94a0aec7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Record: 0
+  NumStepsToRecord: 0
+  DemonstrationName: agent_demo
+  DemonstrationDirectory: Assets/ML-Agents/Scenes/Demonstrations
+--- !u!114 &1610611224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1610611210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88b6042bc9a5d4aa58d931eae49442e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentParameters:
+    maxStep: 0
+  hasUpgradedFromAgentParameters: 1
+  MaxStep: 0
+--- !u!114 &1610611225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1610611210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86ff64f4b6af61046945f246f886978d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1983708651
 GameObject:
   m_ObjectHideFlags: 0
@@ -643,9 +672,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   width: 1000
-  height: 500
+  height: 50
   depth: 1000
-  bottomOffset: -1000
+  bottomOffset: -100
   wallColor: {r: 1, g: 0, b: 1, a: 0.3}
   edgeColor: {r: 0, g: 0.33982182, b: 1, a: 1}
   lineWidth: 0.1
