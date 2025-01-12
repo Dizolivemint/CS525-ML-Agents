@@ -3,9 +3,9 @@ using UnityEngine;
 public class BoundarySetup : MonoBehaviour
 {
   public float width = 1000f;
-  public float height = 500f;
+  public float height = 50f;
   public float depth = 1000f;
-  public float bottomOffset = -1000f;
+  public float bottomOffset = -100f;
   public Color wallColor = new Color(1, 0, 1, 0.3f);
   public Color edgeColor = Color.blue;
   public float lineWidth = 0.1f;
@@ -74,6 +74,11 @@ public class BoundarySetup : MonoBehaviour
   void CreateVisibleWall(Vector3 position, Vector3 size, string wallType)
   {
     GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+    Rigidbody rb = wall.AddComponent<Rigidbody>();
+    rb.isKinematic = true;
+    rb.useGravity = false;
+    rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+
     wall.transform.parent = transform;
     wall.transform.position = position;
     wall.transform.localScale = size;
@@ -93,11 +98,6 @@ public class BoundarySetup : MonoBehaviour
     // Add physics material to the collider
     Collider wallCollider = wall.GetComponent<Collider>();
     wallCollider.material = boundaryPhysicsMaterial;
-
-    // Make sure the wall doesn't move
-    Rigidbody rb = wall.AddComponent<Rigidbody>();
-    rb.isKinematic = true;
-    rb.useGravity = false;
 
     // Set up the visual material with different colors for each wall type
     Renderer renderer = wall.GetComponent<Renderer>();
